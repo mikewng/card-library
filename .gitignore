@@ -7,3 +7,4 @@ obj/
 *.suo
 *.db
 *.log
+/card-library/appsettings.json
