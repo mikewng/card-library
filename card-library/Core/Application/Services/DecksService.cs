@@ -7,7 +7,7 @@ namespace card_library.Core.Application.Services
 {
     public class DecksService : IDecksService
     {
-        public Task<Result<NewDeckResponse>> CreateDeckById(NewDeckRequest newDeckRequest)
+        public Task<Result<NewDeckResponse>> CreateDeck(NewDeckRequest newDeckRequest)
         {
             throw new NotImplementedException();
         }

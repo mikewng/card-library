@@ -6,7 +6,7 @@
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string ImageRefUrl { get; set; } = string.Empty;
-        public List<Card> Cards { get; set; } = new List<Card>();
+        public List<DeckCardMapping> DeckCards { get; set; } = new List<DeckCardMapping>();
         public List<DeckTag> DeckTags { get; set; } = new List<DeckTag>();
 
         // Relationships

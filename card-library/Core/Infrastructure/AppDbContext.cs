@@ -12,6 +12,7 @@ namespace card_library.Core.Infrastructure
         public DbSet<Game> Games => Set<Game>();
         public DbSet<Deck> Decks => Set<Deck>();
         public DbSet<DeckTag> DeckTags => Set<DeckTag>();
+        public DbSet<DeckCardMapping> DeckCards => Set<DeckCardMapping>();
         public DbSet<Card> Cards => Set<Card>();
         public DbSet<CardSection> CardSections => Set<CardSection>();
         public DbSet<CardTag> CardTags => Set<CardTag>();
@@ -43,22 +44,41 @@ namespace card_library.Core.Infrastructure
                 e.Property(d => d.Description);
                 e.Property(d => d.ImageRefUrl);
 
-                e.HasMany(d => d.Cards)
-                 .WithOne(c => c.Deck!)
-                 .HasForeignKey(c => c.DeckId)
+                e.HasOne(d => d.Game)
+                .WithMany(g => g.Decks)
+                .HasForeignKey(d => d.GameId)
+                .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<DeckCardMapping>(e =>
+            {
+                e.ToTable("DeckCardMappings");
+                e.HasKey(x => new { x.DeckId, x.CardId });
+
+                e.Property(x => x.Count).IsRequired();
+
+                e.HasOne(x => x.Deck)
+                 .WithMany(d => d.DeckCards)
+                 .HasForeignKey(x => x.DeckId)
                  .OnDelete(DeleteBehavior.Cascade);
 
-                e.HasMany(d => d.DeckTags)
-                 .WithOne(dt => dt.Deck!)
-                 .HasForeignKey(dt => dt.DeckId)
-                 .OnDelete(DeleteBehavior.Cascade);
+                e.HasOne(x => x.Card)
+                 .WithMany()
+                 .HasForeignKey(x => x.CardId)
+                 .OnDelete(DeleteBehavior.Restrict);
             });
+
 
             modelBuilder.Entity<DeckTag>(e =>
             {
                 e.ToTable("DeckTags");
                 e.HasKey(c => c.Id);
-                e.Property(c => c.Type);
+                e.Property(c => c.Type).IsRequired();
+
+                e.HasOne(dt => dt.Deck)
+                .WithMany(d => d.DeckTags)
+                .HasForeignKey(dt => dt.DeckId)
+                .OnDelete(DeleteBehavior.Cascade);
 
                 e.HasIndex(dt => new { dt.DeckId, dt.Type })
                 .IsUnique();
@@ -95,7 +115,12 @@ namespace card_library.Core.Infrastructure
             {
                 e.ToTable("CardTags");
                 e.HasKey(c => c.Id);
-                e.Property(c => c.Type);
+                e.Property(c => c.Type).IsRequired();
+
+                e.HasOne(dt => dt.Card)
+                .WithMany(d => d.CardTags)
+                .HasForeignKey(dt => dt.CardId)
+                .OnDelete(DeleteBehavior.Cascade);
 
                 e.HasIndex(ct => new { ct.CardId, ct.Type })
                 .IsUnique();
