@@ -1,9 +1,8 @@
 ﻿using card_library.Core.Application.Models;
-using card_library.Core.Application.Repository.Contracts;
-using card_library.Core.Infrastructure;
+using card_library.Core.Infrastructure.Repository.Contracts;
 using Microsoft.EntityFrameworkCore;
 
-namespace card_library.Core.Application.Repository
+namespace card_library.Core.Infrastructure.Repository
 {
     public class UserRepository : Repository<User>, IUserRepository
     {

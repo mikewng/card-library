@@ -1,6 +1,6 @@
 ﻿using card_library.Core.Application.Models;
 
-namespace card_library.Core.Application.Repository.Contracts
+namespace card_library.Core.Infrastructure.Repository.Contracts
 {
     public interface IUserRepository
     {

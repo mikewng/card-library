@@ -7,7 +7,8 @@
         public bool IsBolded { get; set; } = false;
         public bool IsItalicized { get; set; } = false;
         public float TextSize { get; set; } = 0;
-        public bool IsCustom { get; set; } = false;
+        public int Rank { get; set; }
+        public string Position { get; set; } = "middle";
 
         // Relationships
         public Guid CardId { get; set; }

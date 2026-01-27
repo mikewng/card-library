@@ -1,5 +1,5 @@
-﻿using card_library.Core.Application.Repository;
-using card_library.Core.Application.Repository.Contracts;
+﻿using card_library.Core.Infrastructure.Repository;
+using card_library.Core.Infrastructure.Repository.Contracts;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace card_library.Core.Infrastructure
@@ -16,8 +16,7 @@ namespace card_library.Core.Infrastructure
             _context = context;
         }
 
-        public IUserRepository Users =>
-            _users ??= new UserRepository(_context);
+        public IUserRepository Users => _users ??= new UserRepository(_context);
 
         public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {

@@ -70,6 +70,7 @@ namespace card_library.Core.Infrastructure
                 e.Property(c => c.Name).IsRequired().HasMaxLength(200);
                 e.Property(c => c.HexCardColor);
                 e.Property(c => c.ImageRefUrl);
+                e.Property(c => c.IsRawCardImage);
 
                 e.HasMany(c => c.CardSections)
                 .WithOne(cs => cs.Card)
@@ -85,7 +86,8 @@ namespace card_library.Core.Infrastructure
                 e.Property(c => c.IsBolded);
                 e.Property(c => c.IsItalicized);
                 e.Property(c => c.TextSize);
-                e.Property(c => c.IsCustom);
+                e.Property(c => c.Rank);
+                e.Property(c => c.Position);
             });
 
             modelBuilder.Entity<CardTag>(e =>
