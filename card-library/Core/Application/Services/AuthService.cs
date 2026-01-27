@@ -27,6 +27,7 @@ namespace tasking_api.Main.Service
                 return Result.Fail("Email and password are required");
             }
 
+            // Get User
             var user = await _users.GetByEmailAsync(loginRequest.Email, cancellationToken);
             if (user == null)
             {
@@ -38,6 +39,7 @@ namespace tasking_api.Main.Service
                 return Result.Fail("Invalid email or password");
             }
 
+            // Update Login Time
             user.LastLoginAt = DateTime.UtcNow;
             var updateSuccess = await _users.UpdateAsync(user, cancellationToken);
             if (!updateSuccess)
@@ -74,6 +76,7 @@ namespace tasking_api.Main.Service
                 return Result.Fail("Username already exists");
             }
 
+            // Create Password Hash and New User Object
             var passwordHash = Cryptography.HashPassword(registerRequest.Password);
             var user = new User
             {
