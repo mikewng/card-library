@@ -13,7 +13,7 @@ namespace card_library.Core.Infrastructure
         {
             services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(
-                    configuration.GetConnectionString("Default"))
+                    configuration.GetConnectionString("PrimaryDB"))
             );
 
             services.AddScoped<IUnitOfWork>(sp => 
