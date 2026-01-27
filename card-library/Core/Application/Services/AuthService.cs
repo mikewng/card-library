@@ -1,10 +1,7 @@
-﻿
-using card_library.Core.Application.Models;
+﻿using card_library.Core.Application.Models;
+using card_library.Core.Application.Repository.Contracts;
 using card_library.Core.Application.Services.Contracts;
-using card_library.Core.Infrastructure;
-using card_library.Core.Infrastructure.Repository.Contracts;
-using card_library.Core.Infrastructure.Utils;
-using card_library.Infrastructure.Utils;
+using card_library.Core.Utils;
 using card_library.Main.Models.DTO.Request;
 
 namespace tasking_api.Main.Service

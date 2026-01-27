@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace card_library.Infrastructure.Utils
+namespace card_library.Core.Utils
 {
     public class Cryptography
     {

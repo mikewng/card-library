@@ -1,7 +1,7 @@
 ﻿using card_library.Core.Application.Models.DTO.Request;
 using card_library.Core.Application.Models.DTO.Response;
 using card_library.Core.Application.Services.Contracts;
-using card_library.Core.Infrastructure.Utils;
+using card_library.Core.Utils;
 using Microsoft.AspNetCore.Mvc;
 
 namespace card_library.Core.Api.Controllers
@@ -43,7 +43,25 @@ namespace card_library.Core.Api.Controllers
             return Result<GameResponse>.Ok(res.Value);
         }
 
-        [HttpGet("get/name/{game_name:guid}", Name = "GetGamesByName")]
+
+        // NEEDS TO BE REFACTORED EVENTUALLY
+        [HttpPost("edit/", Name = "EditGame")]
+        public async Task<ActionResult<Result<NewGameResponse>>> EditContent([FromBody] NewGameRequest gameEditRequest)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var res = await _gamesService.EditGameContent(gameEditRequest);
+            if (!res.Success || res.Value == null)
+            {
+                return Result<NewGameResponse>.Fail("Failed to edit game details");
+            }
+
+            return Result<NewGameResponse>.Ok(res.Value);
+        }
+
+
+        [HttpGet("get/name/{game_name}", Name = "GetGamesByName")]
         public async Task<ActionResult<Result<List<GameResponse>>>> GetByName(string game_name)
         {
             var res = await _gamesService.GetGamesByName(game_name);

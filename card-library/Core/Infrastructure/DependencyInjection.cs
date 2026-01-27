@@ -1,5 +1,5 @@
-﻿using card_library.Core.Infrastructure.Repository;
-using card_library.Core.Infrastructure.Repository.Contracts;
+﻿using card_library.Core.Application.Repository.Contracts;
+using card_library.Core.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +21,9 @@ namespace card_library.Core.Infrastructure
             );
 
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IGameRepository, GameRepository>();
+            services.AddScoped<IFileRepository, S3FileStorageRepository>();
+
             return services;
         }
     }

@@ -1,4 +1,4 @@
-﻿namespace card_library.Core.Infrastructure
+﻿namespace card_library.Core.Application.Repository.Contracts
 {
     public interface IUnitOfWork
     {

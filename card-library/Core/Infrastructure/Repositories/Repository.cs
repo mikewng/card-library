@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using card_library.Core.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 
-namespace card_library.Core.Infrastructure.Repository
+namespace card_library.Core.Infrastructure.Repositories
 {
     public abstract class Repository<T> where T : class
     {

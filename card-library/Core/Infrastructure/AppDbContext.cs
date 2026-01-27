@@ -1,4 +1,5 @@
 ﻿using card_library.Core.Application.Models;
+using card_library.Core.Application.Repository.Contracts;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Reflection.Emit;

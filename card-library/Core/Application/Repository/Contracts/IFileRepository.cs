@@ -1,6 +1,6 @@
-﻿using card_library.Core.Infrastructure.Utils;
+﻿using card_library.Core.Utils;
 
-namespace card_library.Core.Infrastructure.Repository.Contracts
+namespace card_library.Core.Application.Repository.Contracts
 {
     public interface IFileRepository
     {

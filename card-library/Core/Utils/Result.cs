@@ -1,4 +1,4 @@
-﻿namespace card_library.Core.Infrastructure.Utils;
+﻿namespace card_library.Core.Utils;
 
 public class Result<T>
 {
