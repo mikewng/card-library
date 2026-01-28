@@ -5,7 +5,7 @@ namespace card_library.Core.Infrastructure.Repositories
 {
     public class S3FileStorageRepository : IFileRepository
     {
-        public Task<Result<string>> GenerateLinkToFile()
+        public Task<Result<string>> GenerateLinkToFile(string secureToken)
         {
             throw new NotImplementedException();
         }

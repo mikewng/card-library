@@ -18,7 +18,7 @@ namespace card_library.Core.Application.Services
             throw new NotImplementedException();
         }
 
-        public Task<Result<CardResponse>> GetCardByName(string card_name)
+        public Task<Result<List<CardResponse>>> GetCardsByName(string card_name)
         {
             throw new NotImplementedException();
         }

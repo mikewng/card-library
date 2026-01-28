@@ -46,7 +46,7 @@ namespace card_library.Core.Api.Controllers
 
         // NEEDS TO BE REFACTORED EVENTUALLY
         [HttpPost("edit/", Name = "EditGame")]
-        public async Task<ActionResult<Result<NewGameResponse>>> EditContent([FromBody] NewGameRequest gameEditRequest)
+        public async Task<ActionResult<Result<NewGameResponse>>> Edit([FromBody] NewGameRequest gameEditRequest)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
