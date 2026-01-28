@@ -17,6 +17,11 @@ namespace card_library.Core.Application.Services
             throw new NotImplementedException();
         }
 
+        public Task<Result<List<DeckResponse>>> GetDecksByName(string deckName)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<Result<NewDeckResponse>> UpdateDeckById(ExistingDeckRequest existingDeckRequest)
         {
             throw new NotImplementedException();

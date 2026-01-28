@@ -1,4 +1,5 @@
 ﻿using card_library.Core.Application.Models;
+using card_library.Core.Application.Models.DTO.Response;
 using card_library.Core.Application.Repository.Contracts;
 using card_library.Core.Application.Services.Contracts;
 using card_library.Core.Utils;
@@ -10,43 +11,39 @@ namespace tasking_api.Main.Service
     {
         private readonly IUserRepository _users;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IJwtTokenService _jwt;
 
-        public AuthService(IUserRepository userRepository, IUnitOfWork unitOfWork)
+        public AuthService(IUserRepository userRepository, IUnitOfWork unitOfWork, IJwtTokenService jwt)
         {
             _users = userRepository;
             _unitOfWork = unitOfWork;
+            _jwt = jwt;
         }
 
-        public async Task<Result> LoginAsync(LoginRequest loginRequest, CancellationToken cancellationToken)
+        public async Task<Result<AuthResponse>> LoginAsync(LoginRequest loginRequest, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(loginRequest.Email) || string.IsNullOrWhiteSpace(loginRequest.Password))
-            {
-                return Result.Fail("Email and password are required");
-            }
+                return Result<AuthResponse>.Fail("Email and password are required");
 
-            // Get User
             var user = await _users.GetByEmailAsync(loginRequest.Email, cancellationToken);
-            if (user == null)
-            {
-                return Result.Fail("Invalid email or password");
-            }
+            if (user == null || !Cryptography.VerifyPassword(loginRequest.Password, user.PasswordHash))
+                return Result<AuthResponse>.Fail("Invalid email or password");
 
-            if (!Cryptography.VerifyPassword(loginRequest.Password, user.PasswordHash))
-            {
-                return Result.Fail("Invalid email or password");
-            }
-
-            // Update Login Time
             user.LastLoginAt = DateTime.UtcNow;
+
             var updateSuccess = await _users.UpdateAsync(user, cancellationToken);
             if (!updateSuccess)
-            {
-                return Result.Fail("Failed to update user login time");
-            }
+                return Result<AuthResponse>.Fail("Failed to update user login time");
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return Result.Ok();
+            var (token, expiresAtUtc) = _jwt.CreateAccessToken(user);
+
+            return Result<AuthResponse>.Ok(new AuthResponse
+            {
+                AccessToken = token,
+                ExpiresAtUtc = expiresAtUtc
+            });
         }
 
         public async Task<Result> RegisterAsync(RegisterRequest registerRequest, CancellationToken cancellationToken)
