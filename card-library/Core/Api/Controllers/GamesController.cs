@@ -20,9 +20,9 @@ namespace card_library.Core.Api.Controllers
         }
 
         [HttpPost("create", Name = "CreateGame")]
-        public async Task<ActionResult<Result>> Create([FromBody] NewGameRequest newGameRequest)
+        public async Task<ActionResult<Result>> Create([FromBody] NewGameRequest newGameRequest, CancellationToken ct)
         {
-            var res = await _gamesService.CreateGameById(newGameRequest);
+            var res = await _gamesService.CreateGameById(newGameRequest, ct);
             if (!res.Success || res.Value == null)
             {
                 return Result.Fail("Could not create this new game.");
@@ -32,9 +32,9 @@ namespace card_library.Core.Api.Controllers
         }
 
         [HttpGet("get/id/{game_id:guid}", Name = "GetGameById")]
-        public async Task<ActionResult<Result<GameResponse>>> GetById(Guid game_id)
+        public async Task<ActionResult<Result<GameResponse>>> GetById(Guid game_id, CancellationToken ct)
         {
-            var res = await _gamesService.GetGameById(game_id);
+            var res = await _gamesService.GetGameById(game_id, ct);
             if (!res.Success || res.Value == null)
             {
                 return Result<GameResponse>.Fail("Could not get game of associated ID.");
@@ -44,14 +44,13 @@ namespace card_library.Core.Api.Controllers
         }
 
 
-        // NEEDS TO BE REFACTORED EVENTUALLY
         [HttpPost("edit/", Name = "EditGame")]
-        public async Task<ActionResult<Result<NewGameResponse>>> Edit([FromBody] NewGameRequest gameEditRequest)
+        public async Task<ActionResult<Result<NewGameResponse>>> Edit([FromBody] NewGameRequest gameEditRequest, CancellationToken ct)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var res = await _gamesService.EditGameContent(gameEditRequest);
+            var res = await _gamesService.EditGameContent(gameEditRequest, ct);
             if (!res.Success || res.Value == null)
             {
                 return Result<NewGameResponse>.Fail("Failed to edit game details");
@@ -62,9 +61,9 @@ namespace card_library.Core.Api.Controllers
 
 
         [HttpGet("get/name/{game_name}", Name = "GetGamesByName")]
-        public async Task<ActionResult<Result<List<GameResponse>>>> GetByName(string game_name)
+        public async Task<ActionResult<Result<List<GameResponse>>>> GetByName(string game_name, CancellationToken ct)
         {
-            var res = await _gamesService.GetGamesByName(game_name);
+            var res = await _gamesService.GetGamesByName(game_name, ct);
             if (!res.Success || res.Value == null)
             {
                 return Result<List<GameResponse>>.Fail("Could not get game of associated name.");

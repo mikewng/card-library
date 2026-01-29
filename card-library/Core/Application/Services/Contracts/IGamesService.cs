@@ -6,9 +6,9 @@ namespace card_library.Core.Application.Services.Contracts
 {
     public interface IGamesService
     {
-        Task<Result<GameResponse>> GetGameById(Guid game_id);
-        Task<Result<List<GameResponse>>> GetGamesByName(string game_name);
-        Task<Result<NewGameResponse>> CreateGameById(NewGameRequest newGameRequest);
-        Task<Result<NewGameResponse>> EditGameContent(NewGameRequest newGameResponse);
+        Task<Result<GameResponse>> GetGameById(Guid game_id, CancellationToken ct);
+        Task<Result<List<GameResponse>>> GetGamesByName(string game_name, CancellationToken ct);
+        Task<Result<NewGameResponse>> CreateGameById(NewGameRequest newGameRequest, CancellationToken ct);
+        Task<Result<NewGameResponse>> EditGameContent(NewGameRequest newGameResponse, CancellationToken ct);
     }
 }

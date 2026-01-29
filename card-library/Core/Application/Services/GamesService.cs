@@ -1,8 +1,11 @@
-﻿using card_library.Core.Application.Models.DTO.Request;
+﻿using card_library.Core.Application.Models;
+using card_library.Core.Application.Models.DTO.Patches;
+using card_library.Core.Application.Models.DTO.Request;
 using card_library.Core.Application.Models.DTO.Response;
 using card_library.Core.Application.Repository.Contracts;
 using card_library.Core.Application.Services.Contracts;
 using card_library.Core.Utils;
+using Microsoft.EntityFrameworkCore;
 
 namespace card_library.Core.Application.Services
 {
@@ -16,22 +19,75 @@ namespace card_library.Core.Application.Services
             _unitOfWork = unitOfWork;
         }
 
-        public Task<Result<NewGameResponse>> CreateGameById(NewGameRequest newGameRequest)
+        public async Task<Result<NewGameResponse>> CreateGameById(NewGameRequest newGameRequest, CancellationToken ct)
         {
-            throw new NotImplementedException();
+
+            // TBD: Call Filestorage Repository to find associated image and Generate Link
+            string imageUrl = "";
+
+            Game newGame = new Game{
+                GameName = newGameRequest.GameName,
+                Description = newGameRequest.Description,
+                ImageRefUrl = imageUrl
+            };
+
+            try
+            {
+                await _game.AddAsync(newGame, ct);
+                await _unitOfWork.SaveChangesAsync(ct);
+
+                return Result<NewGameResponse>.Ok(new NewGameResponse
+                {
+                    Id = newGame.Id,
+                    Name = newGame.GameName
+                });
+            }
+            catch
+            {
+                return Result<NewGameResponse>.Fail("Failed to create new game");
+            }
         }
 
-        public Task<Result<NewGameResponse>> EditGameContent(NewGameRequest newGameResponse)
+        public async Task<Result<NewGameResponse>> EditGameContent(NewGameRequest editGameRequest, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            GamePatch gamePatch = new GamePatch
+            {
+                Id = editGameRequest.Id,
+                GameName = editGameRequest.GameName,
+                Description = editGameRequest.Description
+            };
+            bool isUpdated = await _game.UpdateGame(gamePatch, ct);
+            if (!isUpdated)
+            {
+                return Result<NewGameResponse>.Fail("Failed to update game of associated ID.");
+            }
+
+            return Result<NewGameResponse>.Ok(new NewGameResponse
+            {
+                Id = gamePatch.Id,
+                Name = gamePatch.GameName,
+            });
         }
 
-        public Task<Result<GameResponse>> GetGameById(Guid game_id)
+
+        // TBI
+        public async Task<Result<GameResponse>> GetGameById(Guid game_id, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            var gameResult = await _game.GetById(game_id, ct);
+            if (gameResult == null)
+            {
+                return Result<GameResponse>.Fail("Failed to get game with associated ID");
+            }
+
+            GameResponse gameResponse = new GameResponse
+            {
+                
+            };
+
+            return Result<GameResponse>.Ok(gameResponse);
         }
 
-        public Task<Result<List<GameResponse>>> GetGamesByName(string game_name)
+        public Task<Result<List<GameResponse>>> GetGamesByName(string game_name, CancellationToken ct)
         {
             throw new NotImplementedException();
         }

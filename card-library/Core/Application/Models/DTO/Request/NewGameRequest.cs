@@ -2,7 +2,8 @@
 {
     public class NewGameRequest
     {
+        public Guid Id { get; set; }
         public string GameName { get; set; } = "Untitled";
-        public List<Guid> DeckList = new List<Guid>();
+        public string Description { get; set; } = string.Empty;
     }
 }
