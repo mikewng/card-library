@@ -21,14 +21,10 @@ namespace card_library.Core.Application.Services
 
         public async Task<Result<NewGameResponse>> CreateGameById(NewGameRequest newGameRequest, CancellationToken ct)
         {
-
-            // TBD: Call Filestorage Repository to find associated image and Generate Link
-            string imageUrl = "";
-
             Game newGame = new Game{
                 GameName = newGameRequest.GameName,
                 Description = newGameRequest.Description,
-                ImageRefUrl = imageUrl
+                ImageRefUrl = newGameRequest.ImageRefUrl ?? string.Empty
             };
 
             try
@@ -54,7 +50,8 @@ namespace card_library.Core.Application.Services
             {
                 Id = editGameRequest.Id,
                 GameName = editGameRequest.GameName,
-                Description = editGameRequest.Description
+                Description = editGameRequest.Description,
+                ImageRefUrl = editGameRequest.ImageRefUrl ?? string.Empty
             };
             bool isUpdated = await _game.UpdateGame(gamePatch, ct);
             if (!isUpdated)

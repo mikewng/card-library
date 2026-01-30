@@ -32,6 +32,7 @@ namespace card_library.Core.Infrastructure.Repositories
 
             existing.GameName = gamePatch.GameName;
             existing.Description = gamePatch.Description;
+            existing.ImageRefUrl = gamePatch.ImageRefUrl;
 
             return true;
         }

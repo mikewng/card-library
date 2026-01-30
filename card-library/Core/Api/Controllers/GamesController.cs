@@ -12,11 +12,16 @@ namespace card_library.Core.Api.Controllers
     {
         private readonly ILogger<GamesController> _logger;
         private readonly IGamesService _gamesService;
+        private readonly IFileStorageService _fileStorageService;
 
-        public GamesController(ILogger<GamesController> logger, IGamesService gamesService)
+        public GamesController(
+            ILogger<GamesController> logger,
+            IGamesService gamesService,
+            IFileStorageService fileStorageService)
         {
             _logger = logger;
             _gamesService = gamesService;
+            _fileStorageService = fileStorageService;
         }
 
         [HttpPost("create", Name = "CreateGame")]
@@ -70,6 +75,74 @@ namespace card_library.Core.Api.Controllers
             }
 
             return Result<List<GameResponse>>.Ok(res.Value);
+        }
+
+        [HttpPost("upload-image", Name = "UploadGameImage")]
+        [RequestSizeLimit(10 * 1024 * 1024)]
+        public async Task<ActionResult<Result<string>>> UploadImage(IFormFile file, CancellationToken ct)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                {
+                    return BadRequest(Result<string>.Fail("No file uploaded"));
+                }
+                var allowedContentTypes = new[] { "image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp" };
+                if (!allowedContentTypes.Contains(file.ContentType.ToLower()))
+                {
+                    return BadRequest(Result<string>.Fail("Invalid file type. Only images are allowed (JPEG, PNG, GIF, WEBP)"));
+                }
+                const long maxFileSize = 10 * 1024 * 1024;
+                if (file.Length > maxFileSize)
+                {
+                    return BadRequest(Result<string>.Fail("File size exceeds 10MB limit"));
+                }
+
+                using var stream = file.OpenReadStream();
+                var imageUrl = await _fileStorageService.UploadFileAsync(
+                    stream,
+                    file.FileName,
+                    file.ContentType,
+                    folder: "games/images",
+                    ct: ct
+                );
+
+                _logger.LogInformation("Successfully uploaded game image: {ImageUrl}", imageUrl);
+
+                return Ok(Result<string>.Ok(imageUrl));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error uploading game image");
+                return StatusCode(500, Result<string>.Fail("Failed to upload image"));
+            }
+        }
+
+        [HttpDelete("delete-image", Name = "DeleteGameImage")]
+        public async Task<ActionResult<Result>> DeleteImage([FromQuery] string imageUrl, CancellationToken ct)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(imageUrl))
+                {
+                    return BadRequest(Result.Fail("Image URL is required"));
+                }
+
+                var deleted = await _fileStorageService.DeleteFileAsync(imageUrl, ct);
+                if (!deleted)
+                {
+                    return NotFound(Result.Fail("Image not found or already deleted"));
+                }
+
+                _logger.LogInformation("Successfully deleted game image: {ImageUrl}", imageUrl);
+
+                return Ok(Result.Ok());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting game image");
+                return StatusCode(500, Result.Fail("Failed to delete image"));
+            }
         }
     }
 }
