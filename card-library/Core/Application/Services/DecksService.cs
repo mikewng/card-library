@@ -10,13 +10,11 @@ namespace card_library.Core.Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IDeckRepository _deck;
-        private readonly IFileRepository _filestorage;
 
-        public DecksService(IDeckRepository deckRepository, IUnitOfWork unitOfWork, IFileRepository filestorage)
+        public DecksService(IDeckRepository deckRepository, IUnitOfWork unitOfWork)
         {
             _deck = deckRepository;
             _unitOfWork = unitOfWork;
-            _filestorage = filestorage;
         }
 
         public Task<Result<NewDeckResponse>> CreateDeck(NewDeckRequest newDeckRequest)
@@ -32,13 +30,12 @@ namespace card_library.Core.Application.Services
                 return Result<DeckResponse>.Fail("Failed to get deck of associated ID.");
             }
 
-            // Call S3 to get File
-
             DeckResponse deckResponse = new DeckResponse
             {
                 DeckId = deck_id,
                 DeckName = deckResult.Name,
                 DeckDescription = deckResult.Description,
+                PublicImgUrl = deckResult.ImageRefUrl
             };
 
             return Result<DeckResponse>.Ok(deckResponse);
