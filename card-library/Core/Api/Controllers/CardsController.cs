@@ -21,9 +21,9 @@ namespace card_library.Core.Api.Controllers
         }
 
         [HttpGet("id/{cardId:guid}", Name = "GetCardById")]
-        public async Task<ActionResult<Result<CardResponse>>> GetById(Guid cardId)
+        public async Task<ActionResult<Result<CardResponse>>> GetById(Guid cardId, CancellationToken ct)
         {
-            var card = await _cardsService.GetCardById(cardId);
+            var card = await _cardsService.GetCardById(cardId, ct);
             if (!card.Success || card.Value == null)
             {
                 return Result<CardResponse>.Fail("Could not find deck by given id.");
@@ -33,9 +33,9 @@ namespace card_library.Core.Api.Controllers
         }
 
         [HttpGet("name/{cardName}", Name = "GetCardsByName")]
-        public async Task<ActionResult<Result<List<CardResponse>>>> GetByName(string cardName)
+        public async Task<ActionResult<Result<List<CardResponse>>>> GetByName(string cardName, CancellationToken ct)
         {
-            var cardList = await _cardsService.GetCardsByName(cardName);
+            var cardList = await _cardsService.GetCardsByName(cardName, ct);
             if (!cardList.Success || cardList.Value == null)
             {
                 return Result<List<CardResponse>>.Fail("Could not find any cards by given name.");
@@ -45,9 +45,9 @@ namespace card_library.Core.Api.Controllers
         }
 
         [HttpGet("deckId/{deckId:guid}", Name = "GetCardsByDeckId")]
-        public async Task<Result<List<CardResponse>>> GetByDeckId(Guid deckId)
+        public async Task<Result<List<CardResponse>>> GetByDeckId(Guid deckId, CancellationToken ct)
         {
-            var cardList = await _cardsService.GetCardsByDeckId(deckId);
+            var cardList = await _cardsService.GetCardsByDeckId(deckId, ct);
             if (!cardList.Success || cardList.Value == null)
             {
                 return Result<List<CardResponse>>.Fail("Could not find any cards of associated deck.");
@@ -57,9 +57,9 @@ namespace card_library.Core.Api.Controllers
         }
 
         [HttpGet("deckTags", Name = "GetCardsByTags")]
-        public async Task<Result<List<CardResponse>>> GetByTags([FromBody] TagRequest request)
+        public async Task<Result<List<CardResponse>>> GetByTags([FromBody] TagRequest request, CancellationToken ct)
         {
-            var cardList = await _cardsService.GetCardsByTags(request.CardTags);
+            var cardList = await _cardsService.GetCardsByTags(request.CardTags, ct);
             if (!cardList.Success || cardList.Value == null)
             {
                 return Result<List<CardResponse>>.Fail("Could not find any cards of associated tag(s).");
@@ -70,10 +70,10 @@ namespace card_library.Core.Api.Controllers
         }
 
         [HttpGet("gameId/{gameId:guid}", Name = "GetCardsByGameId")]
-        public async Task<Result<List<CardResponse>>> GetByGameId(Guid gameId)
+        public async Task<Result<List<CardResponse>>> GetByGameId(Guid gameId, CancellationToken ct)
         {
             // Eventually add pagination
-            var cardList = await _cardsService.GetCardsByGameId(gameId);
+            var cardList = await _cardsService.GetCardsByGameId(gameId, ct);
             if (!cardList.Success || cardList.Value == null)
             {
                 return Result<List<CardResponse>>.Fail("Could not find any cards of associated game.");
@@ -83,10 +83,10 @@ namespace card_library.Core.Api.Controllers
         }
 
         [HttpPost("create", Name = "CreateCard")]
-        public async Task<Result<NewCardResponse>> Create([FromBody] NewCardRequest newCardRequest)
+        public async Task<Result<NewCardResponse>> Create([FromBody] NewCardRequest newCardRequest, CancellationToken ct)
         {
             // Eventually add pagination
-            var cardResult = await _cardsService.CreateCard(newCardRequest);
+            var cardResult = await _cardsService.CreateCard(newCardRequest, ct);
             if (!cardResult.Success || cardResult.Value == null)
             {
                 return Result<NewCardResponse>.Fail("Failed to create card.");

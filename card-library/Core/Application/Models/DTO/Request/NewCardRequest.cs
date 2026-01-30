@@ -3,7 +3,7 @@
     public class NewCardRequest
     {
         public string CardTitle { get; set; } = "Untitled";
-        public string? HexCardColor { get; set; }
+        public string HexCardColor { get; set; } = "FFFFFF";
         public bool IsRawImageOnly { get; set; }
 
         // Attribute for Image Content
