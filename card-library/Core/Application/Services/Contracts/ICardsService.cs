@@ -13,5 +13,7 @@ namespace card_library.Core.Application.Services.Contracts
         Task<Result<List<CardResponse>>> GetCardsByTags(List<CardTag> tag_list, CancellationToken ct);
         Task<Result<List<CardResponse>>> GetCardsByGameId(Guid game_id, CancellationToken ct);
         Task<Result<NewCardResponse>> CreateCard(NewCardRequest newCardRequest, CancellationToken ct);
+        Task<Result<string>> UploadImage(Guid cardId, string s3Key, CancellationToken ct);
+        Task<Result<string>> DeleteImage(Guid cardId, CancellationToken ct);
     }
 }

@@ -77,9 +77,9 @@ namespace card_library.Core.Api.Controllers
             return Result<List<GameResponse>>.Ok(res.Value);
         }
 
-        [HttpPost("upload-image", Name = "UploadGameImage")]
+        [HttpPost("{gameId:guid}/upload-image", Name = "UploadGameImage")]
         [RequestSizeLimit(10 * 1024 * 1024)]
-        public async Task<ActionResult<Result<string>>> UploadImage(IFormFile file, CancellationToken ct)
+        public async Task<ActionResult<Result<string>>> UploadImage(Guid gameId, IFormFile file, CancellationToken ct)
         {
             try
             {
@@ -107,10 +107,16 @@ namespace card_library.Core.Api.Controllers
                     ct: ct
                 );
 
-                // Generate presigned URL for immediate access (7 days expiration)
-                var presignedUrl = await _fileStorageService.GetPresignedUrlAsync(fileKey, expirationMinutes: 10080, ct: ct);
+                var linkResult = await _gamesService.UploadImage(gameId, fileKey, ct);
+                if (!linkResult.Success)
+                {
+                    await _fileStorageService.DeleteFileAsync(fileKey, ct);
+                    return NotFound(Result<string>.Fail(linkResult.Error ?? "Game not found."));
+                }
 
-                _logger.LogInformation("Successfully uploaded game image with key: {FileKey}", fileKey);
+                var presignedUrl = await _fileStorageService.GetPresignedUrlAsync(fileKey, ct: ct);
+
+                _logger.LogInformation("Successfully uploaded game image with key: {FileKey} for game: {GameId}", fileKey, gameId);
 
                 return Ok(Result<string>.Ok(presignedUrl));
             }
@@ -121,23 +127,24 @@ namespace card_library.Core.Api.Controllers
             }
         }
 
-        [HttpDelete("delete-image", Name = "DeleteGameImage")]
-        public async Task<ActionResult<Result>> DeleteImage([FromQuery] string imageUrl, CancellationToken ct)
+        [HttpDelete("{gameId:guid}/delete-image", Name = "DeleteGameImage")]
+        public async Task<ActionResult<Result>> DeleteImage(Guid gameId, CancellationToken ct)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(imageUrl))
+                var deleteResult = await _gamesService.DeleteImage(gameId, ct);
+                if (!deleteResult.Success || deleteResult.Value == null)
                 {
-                    return BadRequest(Result.Fail("Image URL is required"));
+                    return NotFound(Result.Fail(deleteResult.Error ?? "Game not found or has no image."));
                 }
 
-                var deleted = await _fileStorageService.DeleteFileAsync(imageUrl, ct);
+                var deleted = await _fileStorageService.DeleteFileAsync(deleteResult.Value, ct);
                 if (!deleted)
                 {
-                    return NotFound(Result.Fail("Image not found or already deleted"));
+                    _logger.LogWarning("S3 file not found for game {GameId}, but ImageRefUrl was cleared", gameId);
                 }
 
-                _logger.LogInformation("Successfully deleted game image: {ImageUrl}", imageUrl);
+                _logger.LogInformation("Successfully deleted game image for game: {GameId}", gameId);
 
                 return Ok(Result.Ok());
             }

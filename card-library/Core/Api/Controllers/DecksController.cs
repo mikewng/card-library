@@ -72,9 +72,9 @@ namespace card_library.Core.Api.Controllers
             return Result<NewDeckResponse>.Ok(deckResult.Value);
         }
 
-        [HttpPost("upload-image", Name = "UploadDeckImage")]
+        [HttpPost("{deckId:guid}/upload-image", Name = "UploadDeckImage")]
         [RequestSizeLimit(10 * 1024 * 1024)]
-        public async Task<ActionResult<Result<string>>> UploadImage(IFormFile file, CancellationToken ct)
+        public async Task<ActionResult<Result<string>>> UploadImage(Guid deckId, IFormFile file, CancellationToken ct)
         {
             try
             {
@@ -95,7 +95,6 @@ namespace card_library.Core.Api.Controllers
                     return BadRequest(Result<string>.Fail("File size exceeds 10MB limit"));
                 }
 
-                // Upload to S3 in decks/images folder
                 using var stream = file.OpenReadStream();
                 var fileKey = await _fileStorageService.UploadFileAsync(
                     stream,
@@ -105,10 +104,16 @@ namespace card_library.Core.Api.Controllers
                     ct: ct
                 );
 
-                // Generate presigned URL for immediate access (7 days expiration)
-                var presignedUrl = await _fileStorageService.GetPresignedUrlAsync(fileKey, expirationMinutes: 10080, ct: ct);
+                var linkResult = await _decksService.UploadImage(deckId, fileKey, ct);
+                if (!linkResult.Success)
+                {
+                    await _fileStorageService.DeleteFileAsync(fileKey, ct);
+                    return NotFound(Result<string>.Fail(linkResult.Error ?? "Deck not found."));
+                }
 
-                _logger.LogInformation("Successfully uploaded deck image with key: {FileKey}", fileKey);
+                var presignedUrl = await _fileStorageService.GetPresignedUrlAsync(fileKey, ct: ct);
+
+                _logger.LogInformation("Successfully uploaded deck image with key: {FileKey} for deck: {DeckId}", fileKey, deckId);
 
                 return Ok(Result<string>.Ok(presignedUrl));
             }
@@ -119,24 +124,24 @@ namespace card_library.Core.Api.Controllers
             }
         }
 
-
-        [HttpDelete("delete-image", Name = "DeleteDeckImage")]
-        public async Task<ActionResult<Result>> DeleteImage([FromQuery] string imageUrl, CancellationToken ct)
+        [HttpDelete("{deckId:guid}/delete-image", Name = "DeleteDeckImage")]
+        public async Task<ActionResult<Result>> DeleteImage(Guid deckId, CancellationToken ct)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(imageUrl))
+                var deleteResult = await _decksService.DeleteImage(deckId, ct);
+                if (!deleteResult.Success || deleteResult.Value == null)
                 {
-                    return BadRequest(Result.Fail("Image URL is required"));
+                    return NotFound(Result.Fail(deleteResult.Error ?? "Deck not found or has no image."));
                 }
 
-                var deleted = await _fileStorageService.DeleteFileAsync(imageUrl, ct);
+                var deleted = await _fileStorageService.DeleteFileAsync(deleteResult.Value, ct);
                 if (!deleted)
                 {
-                    return NotFound(Result.Fail("Image not found or already deleted"));
+                    _logger.LogWarning("S3 file not found for deck {DeckId}, but ImageRefUrl was cleared", deckId);
                 }
 
-                _logger.LogInformation("Successfully deleted deck image: {ImageUrl}", imageUrl);
+                _logger.LogInformation("Successfully deleted deck image for deck: {DeckId}", deckId);
 
                 return Ok(Result.Ok());
             }

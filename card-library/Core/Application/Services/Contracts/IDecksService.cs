@@ -11,6 +11,7 @@ namespace card_library.Core.Application.Services.Contracts
         Task<Result<List<DeckResponse>>> GetDecksByName(string deckName);
         Task<Result<NewDeckResponse>> CreateDeck(NewDeckRequest newDeckRequest);
         Task<Result<NewDeckResponse>> UpdateDeckById(ExistingDeckRequest existingDeckRequest);
-
+        Task<Result<string>> UploadImage(Guid deckId, string s3Key, CancellationToken ct);
+        Task<Result<string>> DeleteImage(Guid deckId, CancellationToken ct);
     }
 }
