@@ -38,8 +38,7 @@ namespace card_library.Core.Application.Services
                 BucketName = _settings.BucketName,
                 Key = key,
                 InputStream = stream,
-                ContentType = contentType,
-                CannedACL = _settings.MakeFilesPublic ? S3CannedACL.PublicRead : S3CannedACL.Private
+                ContentType = contentType
             };
 
             try
@@ -51,8 +50,8 @@ namespace card_library.Core.Application.Services
                     throw new Exception($"Failed to upload file to S3. Status: {response.HttpStatusCode}");
                 }
 
-                // Return the public URL
-                return GetFileUrl(key);
+                // Return the S3 key - callers should use GetPresignedUrlAsync for access URLs
+                return key;
             }
             catch (AmazonS3Exception ex)
             {
@@ -142,26 +141,29 @@ namespace card_library.Core.Application.Services
 
         /// <summary>
         /// Extracts the S3 key from a full URL
-        /// Handles both S3 direct URLs and CloudFront URLs
+        /// Handles S3 direct URLs, CloudFront URLs, and presigned URLs
         /// </summary>
         private string ExtractKeyFromUrl(string fileUrl)
         {
+            // Strip query parameters (for presigned URLs)
+            var urlWithoutQuery = fileUrl.Split('?')[0];
+
             // Handle CloudFront URL
             if (!string.IsNullOrWhiteSpace(_settings.CloudFrontUrl) &&
-                fileUrl.StartsWith(_settings.CloudFrontUrl, StringComparison.OrdinalIgnoreCase))
+                urlWithoutQuery.StartsWith(_settings.CloudFrontUrl, StringComparison.OrdinalIgnoreCase))
             {
-                return fileUrl.Substring(_settings.CloudFrontUrl.TrimEnd('/').Length + 1);
+                return urlWithoutQuery.Substring(_settings.CloudFrontUrl.TrimEnd('/').Length + 1);
             }
 
             // Handle S3 direct URL
             var s3BaseUrl = $"https://{_settings.BucketName}.s3.{_settings.Region}.amazonaws.com/";
-            if (fileUrl.StartsWith(s3BaseUrl, StringComparison.OrdinalIgnoreCase))
+            if (urlWithoutQuery.StartsWith(s3BaseUrl, StringComparison.OrdinalIgnoreCase))
             {
-                return fileUrl.Substring(s3BaseUrl.Length);
+                return urlWithoutQuery.Substring(s3BaseUrl.Length);
             }
 
             // If it's already just a key, return it
-            return fileUrl;
+            return urlWithoutQuery;
         }
     }
 }

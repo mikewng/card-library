@@ -99,7 +99,7 @@ namespace card_library.Core.Api.Controllers
                 }
 
                 using var stream = file.OpenReadStream();
-                var imageUrl = await _fileStorageService.UploadFileAsync(
+                var fileKey = await _fileStorageService.UploadFileAsync(
                     stream,
                     file.FileName,
                     file.ContentType,
@@ -107,9 +107,12 @@ namespace card_library.Core.Api.Controllers
                     ct: ct
                 );
 
-                _logger.LogInformation("Successfully uploaded game image: {ImageUrl}", imageUrl);
+                // Generate presigned URL for immediate access (7 days expiration)
+                var presignedUrl = await _fileStorageService.GetPresignedUrlAsync(fileKey, expirationMinutes: 10080, ct: ct);
 
-                return Ok(Result<string>.Ok(imageUrl));
+                _logger.LogInformation("Successfully uploaded game image with key: {FileKey}", fileKey);
+
+                return Ok(Result<string>.Ok(presignedUrl));
             }
             catch (Exception ex)
             {
