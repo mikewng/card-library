@@ -25,7 +25,16 @@ namespace card_library.Core.Infrastructure.Repositories
 
         public async Task<List<Card>> GetListByIds(List<Guid> cardIds, CancellationToken ct = default)
         {
-            throw new NotImplementedException();
+            List<Card> listCards = new List<Card>();
+            foreach (Guid cardId in cardIds)
+            {
+                Card? card = await DbSet.FirstOrDefaultAsync(c => c.Id == cardId);
+                if (card != null)
+                {
+                    listCards.Add(card);
+                }
+            }
+            return listCards;
         }
 
         public async Task<bool> UpdateCard(CardPatch cardPatch, CancellationToken ct = default)

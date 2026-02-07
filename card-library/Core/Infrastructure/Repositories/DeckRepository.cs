@@ -29,10 +29,8 @@ namespace card_library.Core.Infrastructure.Repositories
             var existing = await DbSet.FirstOrDefaultAsync(g => g.Id == deckPatch.Id, ct);
             if (existing is null) return false;
 
-            // Update:
-            // - Name
-            // - Description
-
+            existing.Name = deckPatch.DeckName;
+            existing.Name = deckPatch.Description;
 
             throw new NotImplementedException();
         }

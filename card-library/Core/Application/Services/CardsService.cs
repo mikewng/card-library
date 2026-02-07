@@ -4,6 +4,8 @@ using card_library.Core.Application.Models.DTO.Response;
 using card_library.Core.Application.Repository.Contracts;
 using card_library.Core.Application.Services.Contracts;
 using card_library.Core.Utils;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Xml.Linq;
 
 namespace card_library.Core.Application.Services
 {
@@ -48,14 +50,53 @@ namespace card_library.Core.Application.Services
             throw new NotImplementedException();
         }
 
-        public Task<Result<CardResponse>> GetCardById(Guid card_id, CancellationToken ct)
+        public async Task<Result<CardResponse>> GetCardById(Guid card_id, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            var cardResult = await _card.GetById(card_id, ct);
+            if (cardResult == null)
+            {
+                return Result<CardResponse>.Fail("Failed to get card with associated ID.");
+            }
+            CardResponse cardResponse = new CardResponse
+            {
+                CardId = cardResult.Id,
+                CardName = cardResult.Name,
+                HexColor = cardResult.HexCardColor,
+                PublicImgUrl = await ResolvePresignedUrl(cardResult.ImageRefUrl, ct),
+                CardSections = cardResult.CardSections,
+                CardTags = cardResult.CardTags
+            };
+
+            return Result<CardResponse>.Ok(cardResponse);
         }
 
-        public Task<Result<List<CardResponse>>> GetCardsByName(string card_name, CancellationToken ct)
+        public async Task<Result<List<CardResponse>>> GetCardsByName(string card_name, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            var cardListResult = await _card.GetListByName(card_name, ct);
+            if (cardListResult == null)
+            {
+                return Result<List<CardResponse>>.Fail("Failed to get card(s) with associated name.");
+            }
+
+            List<CardResponse> listCardResponses = new List<CardResponse>();
+            foreach (Card cardResult in cardListResult)
+            {
+                if (cardResult != null)
+                {
+                    CardResponse cardResponse = new CardResponse
+                    {
+                        CardId = cardResult.Id,
+                        CardName = cardResult.Name,
+                        HexColor = cardResult.HexCardColor,
+                        PublicImgUrl = await ResolvePresignedUrl(cardResult.ImageRefUrl, ct),
+                        CardSections = cardResult.CardSections,
+                        CardTags = cardResult.CardTags
+                    };
+                    listCardResponses.Add(cardResponse);
+                }
+            }
+
+            return Result<List<CardResponse>>.Ok(listCardResponses);
         }
 
         public Task<Result<List<CardResponse>>> GetCardsByDeckId(Guid deck_id, CancellationToken ct)
