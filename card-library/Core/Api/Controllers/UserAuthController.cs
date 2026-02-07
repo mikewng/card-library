@@ -1,10 +1,12 @@
 ﻿using card_library.Core.Application.Services.Contracts;
 using card_library.Core.Infrastructure;
 using card_library.Main.Models.DTO.Request;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace card_library.Core.Api.Controllers
 {
+    [AllowAnonymous]
     [ApiController]
     [Route("[controller]")]
     public class UserAuthController : Controller

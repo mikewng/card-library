@@ -4,10 +4,12 @@ using card_library.Core.Application.Models.DTO.Response;
 using card_library.Core.Application.Services;
 using card_library.Core.Application.Services.Contracts;
 using card_library.Core.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace card_library.Core.Api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class CardsController : Controller
