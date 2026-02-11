@@ -24,6 +24,7 @@ namespace card_library.Core.Infrastructure
             services.AddScoped<IGameRepository, GameRepository>();
             services.AddScoped<IDeckRepository, DeckRepository>();
             services.AddScoped<ICardRepository, CardRepository>();
+            services.AddScoped<ITextIconRepository, TextIconRepository>();
 
             return services;
         }

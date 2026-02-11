@@ -21,6 +21,7 @@ public static class DependencyInjection
         services.AddScoped<IGamesService, GamesService>();
         services.AddScoped<IDecksService, DecksService>();
         services.AddScoped<ICardsService, CardsService>();
+        services.AddScoped<ITextIconService, TextIconService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
 
         // Configure AWS S3 settings

@@ -30,7 +30,7 @@ namespace card_library.Core.Api.Controllers
             var result = await _authService.LoginAsync(request, ct);
 
             return result.Success
-                ? Ok()
+                ? Ok(result.Value)
                 : BadRequest(result.Error);
         }
 

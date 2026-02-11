@@ -17,6 +17,7 @@ namespace card_library.Core.Infrastructure
         public DbSet<CardSection> CardSections => Set<CardSection>();
         public DbSet<CardTag> CardTags => Set<CardTag>();
         public DbSet<User> Users => Set<User>();
+        public DbSet<TextIcon> TextIcons => Set<TextIcon>();
         public override Task<int> SaveChangesAsync(CancellationToken ct = default)
             => base.SaveChangesAsync(ct);
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -140,6 +141,18 @@ namespace card_library.Core.Infrastructure
 
                 e.HasIndex(u => u.Username).IsUnique();
                 e.HasIndex(u => u.Email).IsUnique();
+            });
+
+            modelBuilder.Entity<TextIcon>(e =>
+            {
+                e.ToTable("TextIcons");
+                e.HasKey(t => t.Id);
+
+                e.Property(t => t.Name).IsRequired().HasMaxLength(50);
+                e.Property(t => t.ImageRefUrl);
+
+                e.HasIndex(t => t.Name)
+                 .IsUnique();
             });
         }
     }
